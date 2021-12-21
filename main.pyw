@@ -1,4 +1,4 @@
-import win32pipe, win32file, pywintypes
+import win32pipe, win32file
 import subprocess
 import re
 import threading
@@ -16,7 +16,7 @@ got_error = False
 error_text = ""
 usbpcap_process = None
 do_xfade = True
-xfade_shape = 1
+xfade_shape = 0
 
 split_label = None
 split_progress = None
@@ -124,20 +124,20 @@ def tick():
         if num_procs > 1:
             text += "s"
         status_label.configure(text = text)
-
+    
     if connected and volume_val == -1:
-        split_label.configure(text = f'App Volume: Adjust dial to start...')
+        split_label.configure(text = f'Chat Volume: Adjust dial to start...')
         split_progress['mode'] = 'indeterminate'
         split_progress['value'] += 1
-        volume_label.configure(text = f'Volume: Adjust dial to start...')
+        volume_label.configure(text = f'Game Volume: Adjust dial to start...')
         volume_progress['mode'] = 'indeterminate'
-        volume_progress['value'] += 1
+        volume_progress['value'] -= 1
     elif connected or (volume_val == 0 and split_val == 1):
-        split_label.configure(text = f'App Volume: {split_val}')
+        split_label.configure(text = f'Chat Volume: {split_val}')
         split_progress['value'] = split_val
         split_progress['mode'] = 'determinate'
-        volume_label.configure(text = f'Volume: {volume_val}')
-        volume_progress['value'] = volume_val
+        volume_label.configure(text = f'Game Volume: {100 - split_val}')
+        volume_progress['value'] = 100 - split_val
         volume_progress['mode'] = 'determinate'
     else:
         split_label.configure(text = f'App Volume: Connecting...')
@@ -146,7 +146,7 @@ def tick():
         volume_label.configure(text = f'Volume: Connecting...')
         volume_progress['mode'] = 'indeterminate'
         volume_progress['value'] += 1
-
+    
     window.after(20, tick)
 
 if __name__ == "__main__":
@@ -166,17 +166,17 @@ if __name__ == "__main__":
     status_label = Label(window, text="No packets received yet...")
     status_label.pack(side=TOP, anchor=W, padx=padding_x, pady=padding_y)
 
-    split_label = Label(window, text="")
-    split_label.pack(side=TOP, anchor=W, padx=padding_x, pady=padding_y)
-
-    split_progress = Progressbar(window, orient=HORIZONTAL, length=100)
-    split_progress.pack(fill=X, padx=padding_x, pady=padding_y)
-
     volume_label = Label(window, text="")
     volume_label.pack(side=TOP, anchor=W, padx=padding_x, pady=padding_y)
 
     volume_progress = Progressbar(window, orient=HORIZONTAL, length=100)
     volume_progress.pack(fill=X, padx=padding_x, pady=padding_y)
+
+    split_label = Label(window, text="")
+    split_label.pack(side=TOP, anchor=W, padx=padding_x, pady=padding_y)
+
+    split_progress = Progressbar(window, orient=HORIZONTAL, length=100)
+    split_progress.pack(fill=X, padx=padding_x, pady=padding_y)
 
     t = threading.Thread(target=pipe_reader)
     t.start()
