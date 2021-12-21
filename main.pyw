@@ -16,7 +16,7 @@ got_error = False
 error_text = ""
 usbpcap_process = None
 do_xfade = True
-xfade_shape = 0
+true_xfade = 0
 
 split_label = None
 split_progress = None
@@ -39,7 +39,7 @@ def find_device():
                     return (iface, dev_match.group(1), dev_match.group(2))
 
 def convert_xfade(val):
-    if xfade_shape == 1:
+    if true_xfade == 0:
         if val <= 50:
             return val / 50
         else:
@@ -131,14 +131,30 @@ def tick():
         split_progress['value'] += 1
         volume_label.configure(text = f'Game Volume: Adjust dial to start...')
         volume_progress['mode'] = 'indeterminate'
-        volume_progress['value'] -= 1
+        volume_progress['value'] += 1
     elif connected or (volume_val == 0 and split_val == 1):
-        split_label.configure(text = f'Chat Volume: {split_val}')
-        split_progress['value'] = split_val
-        split_progress['mode'] = 'determinate'
-        volume_label.configure(text = f'Game Volume: {100 - split_val}')
-        volume_progress['value'] = 100 - split_val
-        volume_progress['mode'] = 'determinate'
+        if true_xfade == 0:
+            if split_val >= 50:
+                split_label.configure(text = f'Chat Volume: 100')
+                split_progress['value'] = 100
+                split_progress['mode'] = 'determinate'
+                volume_label.configure(text = f'Game Volume: {split_val}')
+                volume_progress['value'] = split_val
+                volume_progress['mode'] = 'determinate'
+            elif split_val <= 50:
+                split_label.configure(text = f'Chat Volume: {100 + split_val / 2}')
+                split_progress['value'] = 100 + split_val / 2
+                split_progress['mode'] = 'determinate'
+                volume_label.configure(text = f'Game Volume: 100')
+                volume_progress['value'] = 100
+                volume_progress['mode'] = 'determinate'
+        else:
+            split_label.configure(text = f'Chat Volume: {split_val}')
+            split_progress['value'] = split_val
+            split_progress['mode'] = 'determinate'
+            volume_label.configure(text = f'Game Volume: {100 - split_val}')
+            volume_progress['value'] = 100 -split_val
+            volume_progress['mode'] = 'determinate'
     else:
         split_label.configure(text = f'App Volume: Connecting...')
         split_progress['mode'] = 'indeterminate'
