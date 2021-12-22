@@ -138,12 +138,12 @@ def tick():
                 split_label.configure(text = f'Chat Volume: 100')
                 split_progress['value'] = 100
                 split_progress['mode'] = 'determinate'
-                volume_label.configure(text = f'Game Volume: {split_val}')
-                volume_progress['value'] = split_val
+                volume_label.configure(text = f'Game Volume: {split_val * 2}')
+                volume_progress['value'] = split_val * 2
                 volume_progress['mode'] = 'determinate'
-            elif split_val <= 50:
-                split_label.configure(text = f'Chat Volume: {100 + split_val / 2}')
-                split_progress['value'] = 100 + split_val / 2
+            elif split_val < 50:
+                split_label.configure(text = f'Chat Volume: {split_val * 2}')
+                split_progress['value'] = split_val * 2
                 split_progress['mode'] = 'determinate'
                 volume_label.configure(text = f'Game Volume: 100')
                 volume_progress['value'] = 100
